@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>KreedX AR Experience</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.1/aframe.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ar.js/2.4.0/aframe-ar.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      .arjs-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 9999;
+      }
+      .arjs-loader div {
+        text-align: center;
+        font-size: 1.25em;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- AR.js loading screen -->
+    <div class="arjs-loader">
+      <div>Loading KreedX AR Experience, please wait...</div>
+    </div>
+
+    <!-- A-Frame scene -->
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;"
+      renderer="logarithmicDepthBuffer: true;"
+      vr-mode-ui="enabled: false">
+
+      <!-- Custom KreedX logo using A-Frame entities -->
+      <a-marker type="pattern" url="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/patterns/hiro.patt">
+        <a-entity position="0 0.5 0">
+          <!-- K -->
+          <a-entity
+            geometry="primitive: plane; width: 0.5; height: 1;"
+            material="color: #3498db; shader: flat;"
+            text="value: K; color: white; align: center; width: 2; shader: msdf;"
+            position="-0.7 0 0"
+            rotation="0 0 0">
+          </a-entity>
+          
+          <!-- r -->
+          <a-entity
+            geometry="primitive: plane; width: 0.3; height: 0.8;"
+            material="color: #2980b9; shader: flat;"
+            text="value: r; color: white; align: center; width: 1.5; shader: msdf;"
+            position="-0.3 0 0"
+            rotation="0 0 0">
+          </a-entity>
+          
+          <!-- e -->
+          <a-entity
+            geometry="primitive: plane; width: 0.3; height: 0.8;"
+            material="color: #2980b9; shader: flat;"
+            text="value: e; color: white; align: center; width: 1.5; shader: msdf;"
+            position="0 0 0"
+            rotation="0 0 0">
+          </a-entity>
+          
+          <!-- e -->
+          <a-entity
+            geometry="primitive: plane; width: 0.3; height: 0.8;"
+            material="color: #2980b9; shader: flat;"
+            text="value: e; color: white; align: center; width: 1.5; shader: msdf;"
+            position="0.3 0 0"
+            rotation="0 0 0">
+          </a-entity>
+          
+          <!-- d -->
+          <a-entity
+            geometry="primitive: plane; width: 0.3; height: 0.8;"
+            material="color: #2980b9; shader: flat;"
+            text="value: d; color: white; align: center; width: 1.5; shader: msdf;"
+            position="0.6 0 0"
+            rotation="0 0 0">
+          </a-entity>
+          
+          <!-- X -->
+          <a-entity
+            geometry="primitive: plane; width: 0.5; height: 1;"
+            material="color: #e74c3c; shader: flat;"
+            text="value: X; color: white; align: center; width: 2; shader: msdf;"
+            position="1 0 0"
+            rotation="0 0 0">
+          </a-entity>
+          
+          <!-- 3D effect for the logo -->
+          <a-entity
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear;"
+            position="0 -0.6 0">
+            <a-torus-knot radius="0.3" radius-tubular="0.05" p="2" q="3" material="color: #3498db; metalness: 0.8; roughness: 0.2;"></a-torus-knot>
+          </a-entity>
+        </a-entity>
+      </a-marker>
+      
+      <!-- Camera -->
+      <a-entity camera></a-entity>
+    </a-scene>
+  </body>
+</html>
