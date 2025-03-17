@@ -2,93 +2,139 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>KreedX AR Logo</title>
-  <meta name="description" content="KreedX Logo in AR using A-Frame">
+  <title>KreedX Logo in A-Frame</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.2/aframe.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ar.js/2.4.0/aframe-ar.min.js"></script>
   <style>
-    .arjs-loader {
-      height: 100%;
-      width: 100%;
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .loading-overlay {
       position: absolute;
       top: 0;
       left: 0;
+      width: 100%;
+      height: 100%;
       background-color: rgba(0, 0, 0, 0.8);
-      z-index: 9999;
       display: flex;
       justify-content: center;
       align-items: center;
-    }
-    .arjs-loader div {
-      text-align: center;
-      font-size: 1.25em;
       color: white;
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+      z-index: 100;
+      transition: opacity 1s ease-in-out;
     }
   </style>
 </head>
-<body style="margin: 0px; overflow: hidden;">
-  <div class="arjs-loader">
-    <div>Loading KreedX AR Experience, please wait...</div>
-  </div>
+<body>
+  <div class="loading-overlay" id="loading">Loading KreedX Experience...</div>
   
-  <a-scene
-    embedded
-    arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix;"
-    renderer="logarithmicDepthBuffer: true;"
-    vr-mode-ui="enabled: false">
+  <a-scene background="color: #000" loading-screen="dotsColor: #09f; backgroundColor: #000">
+    <!-- Camera and cursor -->
+    <a-entity position="0 1.6 4">
+      <a-camera>
+        <a-cursor color="#FFFFFF"></a-cursor>
+      </a-camera>
+    </a-entity>
     
-    <!-- KreedX Logo -->
-    <a-entity position="0 0 -1">
-      <!-- K -->
-      <a-entity position="-0.6 0 0">
-        <a-box color="#3498db" width="0.1" height="0.6" depth="0.05"></a-box>
-        <a-entity position="0.15 0.15 0" rotation="0 0 45">
-          <a-box color="#3498db" width="0.1" height="0.35" depth="0.05"></a-box>
-        </a-entity>
-        <a-entity position="0.15 -0.15 0" rotation="0 0 -45">
-          <a-box color="#3498db" width="0.1" height="0.35" depth="0.05"></a-box>
-        </a-entity>
+    <!-- Lights -->
+    <a-light type="ambient" color="#888"></a-light>
+    <a-light type="directional" color="#FFF" intensity="0.8" position="-1 1 1"></a-light>
+    <a-light type="point" color="#09f" intensity="1" position="2 3 4"></a-light>
+    
+    <!-- Environment -->
+    <a-sky color="#111133"></a-sky>
+    <a-entity
+      position="0 -0.5 0"
+      geometry="primitive: plane; width: 20; height: 20"
+      rotation="-90 0 0"
+      material="color: #111; metalness: 0.3; roughness: 0.4"
+      shadow="receive: true">
+    </a-entity>
+    
+    <!-- KreedX Logo Text -->
+    <a-entity
+      id="logo"
+      position="0 1.5 -2"
+      text="value: KreedX; align: center; color: #09f; width: 10; font: exo2bold"
+      animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+    </a-entity>
+    
+    <!-- Animated X -->
+    <a-entity position="0 1.25 -2">
+      <a-entity 
+        id="x-part1"
+        geometry="primitive: box; width: 0.2; height: 1; depth: 0.1"
+        material="color: #09f; metalness: 0.8; roughness: 0.2"
+        rotation="0 0 45"
+        animation="property: material.emissive; from: #000; to: #09f; dur: 2000; dir: alternate; loop: true">
       </a-entity>
       
-      <!-- r -->
-      <a-entity position="-0.3 0 0">
-        <a-box color="#2ecc71" width="0.1" height="0.4" depth="0.05" position="0 -0.1 0"></a-box>
-        <a-entity position="0.07 0.1 0">
-          <a-torus-knot color="#2ecc71" radius="0.07" tube="0.02" arc="180" p="2" q="3" segments-tubular="64"></a-torus-knot>
-        </a-entity>
-      </a-entity>
-      
-      <!-- e -->
-      <a-entity position="0 0 0">
-        <a-torus color="#e74c3c" radius="0.15" radius-tubular="0.03" arc="270" rotation="0 0 -90"></a-torus>
-        <a-box color="#e74c3c" width="0.25" height="0.08" depth="0.05" position="0 0 0"></a-box>
-      </a-entity>
-      
-      <!-- e -->
-      <a-entity position="0.3 0 0">
-        <a-torus color="#f39c12" radius="0.15" radius-tubular="0.03" arc="270" rotation="0 0 -90"></a-torus>
-        <a-box color="#f39c12" width="0.25" height="0.08" depth="0.05" position="0 0 0"></a-box>
-      </a-entity>
-      
-      <!-- d -->
-      <a-entity position="0.6 0 0">
-        <a-box color="#9b59b6" width="0.1" height="0.6" depth="0.05" position="-0.1 0 0"></a-box>
-        <a-torus color="#9b59b6" radius="0.15" radius-tubular="0.03" arc="270" rotation="0 0 -90" position="0.05 -0.05 0"></a-torus>
-      </a-entity>
-      
-      <!-- X -->
-      <a-entity position="1 0 0">
-        <a-entity rotation="0 0 45">
-          <a-box color="#e74c3c" width="0.1" height="0.6" depth="0.05"></a-box>
-        </a-entity>
-        <a-entity rotation="0 0 -45">
-          <a-box color="#3498db" width="0.1" height="0.6" depth="0.05"></a-box>
-        </a-entity>
+      <a-entity 
+        id="x-part2"
+        geometry="primitive: box; width: 0.2; height: 1; depth: 0.1"
+        material="color: #09f; metalness: 0.8; roughness: 0.2"
+        rotation="0 0 -45"
+        animation="property: material.emissive; from: #000; to: #09f; dur: 2000; delay: 1000; dir: alternate; loop: true">
       </a-entity>
     </a-entity>
     
-    <!-- Camera -->
-    <a-entity camera></a-entity>
+    <!-- Particles around logo -->
+    <a-entity id="particles" position="0 1.5 -2">
+      <script>
+        // Create particles when scene loaded
+        document.addEventListener('DOMContentLoaded', function() {
+          const particlesContainer = document.getElementById('particles');
+          for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('a-sphere');
+            const radius = 0.02 + Math.random() * 0.03;
+            const distance = 1 + Math.random() * 2;
+            const angle = Math.random() * Math.PI * 2;
+            const yOffset = (Math.random() - 0.5) * 2;
+            
+            const x = Math.cos(angle) * distance;
+            const y = yOffset;
+            const z = Math.sin(angle) * distance;
+            
+            particle.setAttribute('radius', radius);
+            particle.setAttribute('position', `${x} ${y} ${z}`);
+            particle.setAttribute('material', 'color: #09f; emissive: #09f; emissiveIntensity: 0.7');
+            particle.setAttribute('animation', `property: position; to: ${x} ${y + Math.random()} ${z}; loop: true; dur: ${2000 + Math.random() * 3000}; dir: alternate; easing: easeInOutSine`);
+            
+            particlesContainer.appendChild(particle);
+          }
+          
+          // Hide loading overlay
+          setTimeout(() => {
+            const loading = document.getElementById('loading');
+            loading.style.opacity = 0;
+            setTimeout(() => {
+              loading.style.display = 'none';
+            }, 1000);
+          }, 2000);
+        });
+      </script>
+    </a-entity>
+    
+    <!-- Rotating rings around logo -->
+    <a-entity position="0 1.5 -2" animation="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear">
+      <a-torus color="#09f" radius="1.5" radius-tubular="0.01" segments-tubular="32" opacity="0.7"></a-torus>
+    </a-entity>
+    
+    <a-entity position="0 1.5 -2" animation="property: rotation; to: 90 360 45; loop: true; dur: 20000; easing: linear">
+      <a-torus color="#09f" radius="1.8" radius-tubular="0.01" segments-tubular="32" opacity="0.5"></a-torus>
+    </a-entity>
   </a-scene>
+  
+  <script>
+    // Additional runtime effects
+    AFRAME.registerComponent('loaded-handler', {
+      init: function() {
+        document.querySelector('#loading').style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
