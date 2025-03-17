@@ -2,13 +2,67 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>KreedX AR Experience</title>
+    <title>KreedX 3D AR Experience</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe/1.4.1/aframe.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ar.js/2.4.0/aframe-ar.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aframe-text-geometry-component/0.5.0/aframe-text-geometry-component.min.js"></script>
+    <script>
+      // Custom component for logo interaction
+      AFRAME.registerComponent('logo-interaction', {
+        init: function() {
+          this.el.addEventListener('click', function() {
+            const rotationY = this.getAttribute('rotation').y;
+            this.setAttribute('animation', `property: rotation; to: 0 ${rotationY + 180} 0; dur: 1000; easing: easeOutQuad`);
+          });
+        }
+      });
+      
+      // Custom component for floating animation
+      AFRAME.registerComponent('float-animation', {
+        init: function() {
+          this.el.setAttribute('animation', 'property: position; dir: alternate; dur: 2000; easing: easeInOutSine; loop: true; from: 0 0 0; to: 0 0.1 0');
+        }
+      });
+      
+      // Custom component for background particles
+      AFRAME.registerComponent('particles', {
+        init: function() {
+          for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('a-sphere');
+            const x = (Math.random() - 0.5) * 3;
+            const y = (Math.random() - 0.5) * 3;
+            const z = (Math.random() - 0.5) * 3;
+            const scale = Math.random() * 0.03 + 0.01;
+            
+            particle.setAttribute('position', `${x} ${y} ${z}`);
+            particle.setAttribute('scale', `${scale} ${scale} ${scale}`);
+            particle.setAttribute('material', 'color: #7FDBFF; emissive: #7FDBFF; emissiveIntensity: 0.5');
+            particle.setAttribute('animation', `property: position; dir: alternate; dur: ${Math.random() * 2000 + 1000}; easing: easeInOutSine; loop: true; from: ${x} ${y} ${z}; to: ${x} ${y + (Math.random() * 0.5)} ${z}`);
+            
+            this.el.appendChild(particle);
+          }
+        }
+      });
+
+      // Hide loading screen when scene is loaded
+      window.addEventListener('load', function() {
+        const scene = document.querySelector('a-scene');
+        const loader = document.querySelector('.arjs-loader');
+        
+        if (scene.hasLoaded) {
+          loader.style.display = 'none';
+        } else {
+          scene.addEventListener('loaded', function() {
+            loader.style.display = 'none';
+          });
+        }
+      });
+    </script>
     <style>
       body {
         margin: 0;
         overflow: hidden;
+        font-family: 'Arial', sans-serif;
       }
       .arjs-loader {
         position: fixed;
@@ -27,83 +81,145 @@
         font-size: 1.25em;
         color: white;
       }
+      .view-controls {
+        position: fixed;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .view-controls button {
+        margin: 0 10px;
+        padding: 8px 16px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .ar-instructions {
+        position: fixed;
+        top: 20px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 10px;
+        z-index: 1000;
+      }
     </style>
   </head>
   <body>
     <!-- AR.js loading screen -->
     <div class="arjs-loader">
-      <div>Loading KreedX AR Experience, please wait...</div>
+      <div>
+        <p>Loading KreedX 3D AR Experience</p>
+        <p>Please wait...</p>
+      </div>
+    </div>
+
+    <!-- AR Instructions -->
+    <div class="ar-instructions">
+      Point camera at the marker<br>
+      Tap on logo to rotate
+    </div>
+
+    <!-- View control buttons -->
+    <div class="view-controls">
+      <button id="toggle-rotation">Toggle Rotation</button>
+      <button id="toggle-view">Toggle View Mode</button>
     </div>
 
     <!-- A-Frame scene -->
     <a-scene
       embedded
       arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;"
-      renderer="logarithmicDepthBuffer: true;"
+      renderer="logarithmicDepthBuffer: true; colorManagement: true; physicallyCorrectLights: true;"
       vr-mode-ui="enabled: false">
 
-      <!-- Custom KreedX logo using A-Frame entities -->
-      <a-marker type="pattern" url="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/patterns/hiro.patt">
-        <a-entity position="0 0.5 0">
-          <!-- K -->
-          <a-entity
-            geometry="primitive: plane; width: 0.5; height: 1;"
-            material="color: #3498db; shader: flat;"
-            text="value: K; color: white; align: center; width: 2; shader: msdf;"
-            position="-0.7 0 0"
-            rotation="0 0 0">
+      <a-assets>
+        <img id="skyTexture" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" crossorigin="anonymous">
+      </a-assets>
+
+      <!-- Environment -->
+      <a-sky color="#000000" opacity="0.8"></a-sky>
+      <a-entity light="type: ambient; color: #BBB; intensity: 0.5"></a-entity>
+      <a-entity light="type: directional; color: #FFF; intensity: 1" position="0 1 1"></a-entity>
+      <a-entity light="type: spot; color: #3498db; intensity: 0.8; angle: 45" position="0 2 0" rotation="-90 0 0"></a-entity>
+
+      <!-- AR Marker -->
+      <a-marker id="kreedx-marker" type="pattern" url="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/patterns/hiro.patt" emitevents="true" cursor="rayOrigin: mouse">
+        
+        <!-- Main KreedX logo container -->
+        <a-entity id="logo-container" position="0 0.5 0" rotation="0 0 0" scale="1 1 1" logo-interaction>
+          
+          <!-- Particle system background -->
+          <a-entity particles></a-entity>
+          
+          <!-- 3D KreedX Text -->
+          <a-entity id="kreedx-text" position="0 0 0" rotation="0 0 0" scale="0.5 0.5 0.5" float-animation>
+            <!-- K -->
+            <a-entity
+              text-geometry="value: K; font: #optimerBoldFont; size: 0.5; height: 0.1; curveSegments: 12; bevelEnabled: true; bevelThickness: 0.02; bevelSize: 0.02; bevelSegments: 5"
+              material="color: #3498db; metalness: 0.8; roughness: 0.2; emissive: #0a60aa; emissiveIntensity: 0.3"
+              position="-1.2 0 0">
+            </a-entity>
+            
+            <!-- r -->
+            <a-entity
+              text-geometry="value: r; font: #optimerBoldFont; size: 0.5; height: 0.1; curveSegments: 12; bevelEnabled: true; bevelThickness: 0.02; bevelSize: 0.02; bevelSegments: 5"
+              material="color: #3498db; metalness: 0.8; roughness: 0.2; emissive: #0a60aa; emissiveIntensity: 0.3"
+              position="-0.7 0 0">
+            </a-entity>
+            
+            <!-- e -->
+            <a-entity
+              text-geometry="value: e; font: #optimerBoldFont; size: 0.5; height: 0.1; curveSegments: 12; bevelEnabled: true; bevelThickness: 0.02; bevelSize: 0.02; bevelSegments: 5"
+              material="color: #3498db; metalness: 0.8; roughness: 0.2; emissive: #0a60aa; emissiveIntensity: 0.3"
+              position="-0.3 0 0">
+            </a-entity>
+            
+            <!-- e -->
+            <a-entity
+              text-geometry="value: e; font: #optimerBoldFont; size: 0.5; height: 0.1; curveSegments: 12; bevelEnabled: true; bevelThickness: 0.02; bevelSize: 0.02; bevelSegments: 5"
+              material="color: #3498db; metalness: 0.8; roughness: 0.2; emissive: #0a60aa; emissiveIntensity: 0.3"
+              position="0.1 0 0">
+            </a-entity>
+            
+            <!-- d -->
+            <a-entity
+              text-geometry="value: d; font: #optimerBoldFont; size: 0.5; height: 0.1; curveSegments: 12; bevelEnabled: true; bevelThickness: 0.02; bevelSize: 0.02; bevelSegments: 5"
+              material="color: #3498db; metalness: 0.8; roughness: 0.2; emissive: #0a60aa; emissiveIntensity: 0.3"
+              position="0.5 0 0">
+            </a-entity>
+            
+            <!-- X -->
+            <a-entity
+              text-geometry="value: X; font: #optimerBoldFont; size: 0.5; height: 0.1; curveSegments: 12; bevelEnabled: true; bevelThickness: 0.02; bevelSize: 0.02; bevelSegments: 5"
+              material="color: #e74c3c; metalness: 0.8; roughness: 0.2; emissive: #c0392b; emissiveIntensity: 0.5"
+              position="1 0 0">
+            </a-entity>
           </a-entity>
           
-          <!-- r -->
-          <a-entity
-            geometry="primitive: plane; width: 0.3; height: 0.8;"
-            material="color: #2980b9; shader: flat;"
-            text="value: r; color: white; align: center; width: 1.5; shader: msdf;"
-            position="-0.3 0 0"
-            rotation="0 0 0">
-          </a-entity>
-          
-          <!-- e -->
-          <a-entity
-            geometry="primitive: plane; width: 0.3; height: 0.8;"
-            material="color: #2980b9; shader: flat;"
-            text="value: e; color: white; align: center; width: 1.5; shader: msdf;"
-            position="0 0 0"
-            rotation="0 0 0">
-          </a-entity>
-          
-          <!-- e -->
-          <a-entity
-            geometry="primitive: plane; width: 0.3; height: 0.8;"
-            material="color: #2980b9; shader: flat;"
-            text="value: e; color: white; align: center; width: 1.5; shader: msdf;"
-            position="0.3 0 0"
-            rotation="0 0 0">
-          </a-entity>
-          
-          <!-- d -->
-          <a-entity
-            geometry="primitive: plane; width: 0.3; height: 0.8;"
-            material="color: #2980b9; shader: flat;"
-            text="value: d; color: white; align: center; width: 1.5; shader: msdf;"
-            position="0.6 0 0"
-            rotation="0 0 0">
-          </a-entity>
-          
-          <!-- X -->
-          <a-entity
-            geometry="primitive: plane; width: 0.5; height: 1;"
-            material="color: #e74c3c; shader: flat;"
-            text="value: X; color: white; align: center; width: 2; shader: msdf;"
-            position="1 0 0"
-            rotation="0 0 0">
-          </a-entity>
-          
-          <!-- 3D effect for the logo -->
-          <a-entity
-            animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear;"
-            position="0 -0.6 0">
-            <a-torus-knot radius="0.3" radius-tubular="0.05" p="2" q="3" material="color: #3498db; metalness: 0.8; roughness: 0.2;"></a-torus-knot>
+          <!-- 3D logo elements -->
+          <a-entity position="0 -0.6 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear; enabled: true">
+            <!-- Outer ring -->
+            <a-torus radius="0.7" radius-tubular="0.02" segments-tubular="64" material="color: #3498db; metalness: 0.8; roughness: 0.2; emissive: #0a60aa; emissiveIntensity: 0.3"></a-torus>
+            
+            <!-- Inner ring -->
+            <a-torus radius="0.5" radius-tubular="0.02" segments-tubular="64" rotation="0 0 90" material="color: #3498db; metalness: 0.8; roughness: 0.2; emissive: #0a60aa; emissiveIntensity: 0.3"></a-torus>
+            
+            <!-- X-shaped structure -->
+            <a-entity>
+              <a-cylinder position="0 0 0" scale="0.02 1 0.02" rotation="0 0 45" material="color: #e74c3c; metalness: 0.8; roughness: 0.2; emissive: #c0392b; emissiveIntensity: 0.5"></a-cylinder>
+              <a-cylinder position="0 0 0" scale="0.02 1 0.02" rotation="0 0 -45" material="color: #e74c3c; metalness: 0.8; roughness: 0.2; emissive: #c0392b; emissiveIntensity: 0.5"></a-cylinder>
+            </a-entity>
+            
+            <!-- Central sphere -->
+            <a-sphere radius="0.1" material="color: #e74c3c; metalness: 0.9; roughness: 0.1; emissive: #c0392b; emissiveIntensity: 0.5"></a-sphere>
           </a-entity>
         </a-entity>
       </a-marker>
@@ -111,5 +227,45 @@
       <!-- Camera -->
       <a-entity camera></a-entity>
     </a-scene>
+
+    <script>
+      // UI controls
+      document.addEventListener('DOMContentLoaded', function() {
+        const toggleRotationBtn = document.getElementById('toggle-rotation');
+        const toggleViewBtn = document.getElementById('toggle-view');
+        const rotatingEntity = document.querySelector('[animation]');
+        const logoContainer = document.getElementById('logo-container');
+        let isRotating = true;
+        let viewMode = 'ar';
+
+        // Toggle rotation
+        toggleRotationBtn.addEventListener('click', function() {
+          isRotating = !isRotating;
+          const animation = rotatingEntity.getAttribute('animation');
+          animation.enabled = isRotating;
+          rotatingEntity.setAttribute('animation', animation);
+          toggleRotationBtn.textContent = isRotating ? 'Pause Rotation' : 'Resume Rotation';
+        });
+
+        // Toggle view mode (AR/3D)
+        toggleViewBtn.addEventListener('click', function() {
+          viewMode = viewMode === 'ar' ? '3d' : 'ar';
+          
+          if (viewMode === '3d') {
+            logoContainer.setAttribute('position', '0 0 -2');
+            logoContainer.setAttribute('rotation', '0 0 0');
+            logoContainer.setAttribute('scale', '0.5 0.5 0.5');
+            document.querySelector('.ar-instructions').textContent = '3D View Mode: Tap logo to rotate';
+            toggleViewBtn.textContent = 'Switch to AR Mode';
+          } else {
+            logoContainer.setAttribute('position', '0 0.5 0');
+            logoContainer.setAttribute('rotation', '0 0 0');
+            logoContainer.setAttribute('scale', '1 1 1');
+            document.querySelector('.ar-instructions').textContent = 'AR Mode: Point camera at marker';
+            toggleViewBtn.textContent = 'Switch to 3D View';
+          }
+        });
+      });
+    </script>
   </body>
 </html>
